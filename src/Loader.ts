@@ -1,8 +1,6 @@
 import { Assets, Texture } from 'pixi.js';
 import { atlasAssets, imageAssets } from './assets';
 
-type AtlasResources = Record<string, Texture>;
-
 export class Loader {
   private textures: Record<string, Texture> = {};
 
@@ -29,14 +27,12 @@ export class Loader {
 
       const loadedAtlases = await Promise.all(atlasNames.map((name) => Assets.load(name)));
       atlasNames.forEach((name) => {
-        const pack = Assets.get(name) as any; // Используем `any`, чтобы работать с реальной структурой
-        console.log(`Atlas loaded: ${name}`, pack); // Логируем содержимое атласа
+        const pack = Assets.get(name);
 
         if (!pack || !pack.textures) {
           throw new Error(`Atlas not loaded or invalid: ${name}`);
         }
 
-        // Извлекаем текстуры из поля `textures`
         Object.entries(pack.textures).forEach(([frameName, texture]) => {
           this.textures[frameName] = texture as Texture;
         });
@@ -47,14 +43,14 @@ export class Loader {
     }
   }
 
-  public getAsset(name: string): Texture;
+  public getAsset(textureName: string): Texture;
   public getAsset(atlasName: string, textureName: string): Texture;
-  public getAsset(a: string, b?: string): Texture {
-    const key = b ?? a;
-    const tex = this.textures[key];
-    if (!tex) {
+  public getAsset(assetName: string, textureName?: string): Texture {
+    const key = textureName ?? assetName;
+    const texture = this.textures[key];
+    if (!texture) {
       throw new Error(`Texture not found: ${key}`);
     }
-    return tex;
+    return texture;
   }
 }
