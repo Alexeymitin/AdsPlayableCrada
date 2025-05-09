@@ -42,12 +42,14 @@ export class Game {
     this.app.stage.addChild(this.playingField);
 
     this.targetSymbol = new TargetSymbol();
-    this.targetSymbol.position.set(245, 422);
+    this.targetSymbol.position.set(245, 450);
     this.targetSymbol.changeSymbol();
 
-    this.playingField.targetPoint = { x: this.targetSymbol.x, y: this.targetSymbol.y };
+    this.playingField.setTargetSymbolName(this.targetSymbol.targetSymbolName);
 
     console.log(this.targetSymbol.x);
     this.app.stage.addChild(this.targetSymbol);
+
+    this.targetSymbol.start();
   }
 }

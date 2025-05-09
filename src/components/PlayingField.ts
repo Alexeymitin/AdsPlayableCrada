@@ -1,4 +1,3 @@
-import { Point } from 'pixi.js';
 import { BaseContainer } from '../BaseContainer';
 import { getRandomSymbolName } from '../helpers/getRandomSymbolName';
 import { Symbol } from './Symbol';
@@ -7,10 +6,12 @@ export class PlayingField extends BaseContainer {
   private rows: number;
   private columns: number;
   private symbols: Symbol[][];
-  private point: Point | null = null;
+  private selectedSymbols: Symbol[] = [];
+  private targetSymbolName: string | null = null;
 
   constructor(rows: number = 6, columns: number = 7) {
     super();
+    this.sortableChildren = true;
     this.rows = rows;
     this.columns = columns;
     this.symbols = [];
@@ -18,17 +19,13 @@ export class PlayingField extends BaseContainer {
     this.createField();
 
     this.on('symbol:press', (symbol: Symbol) => {
-      this.point && symbol.animateSymbolToPoint(this.point);
+      this.handleSymbolSelection(symbol);
     });
   }
 
-  get targetPoint(): Point | null {
-    return this.point;
-  }
-
-  set targetPoint({ x, y }: { x: number; y: number }) {
-    console.log('targetPoint', x, y);
-    this.point = new Point(x, y);
+  public setTargetSymbolName(name: string): void {
+    this.targetSymbolName = name;
+    this.clearSelection();
   }
 
   private createField(): void {
@@ -50,5 +47,38 @@ export class PlayingField extends BaseContainer {
 
       this.symbols.push(rowSymbols);
     }
+  }
+
+  private handleSymbolSelection(symbol: Symbol): void {
+    if (!this.targetSymbolName) return;
+
+    if (this.selectedSymbols.includes(symbol)) {
+      this.selectedSymbols = this.selectedSymbols.filter((s) => s !== symbol);
+      symbol.setSelected(false);
+    } else {
+      if (symbol.getCurrentSymbolName() === this.targetSymbolName) {
+        this.selectedSymbols.push(symbol);
+        symbol.setSelected(true);
+      } else {
+        this.clearSelection();
+      }
+    }
+
+    if (this.selectedSymbols.length === 3) {
+      this.moveSymbolsToTarget();
+    }
+  }
+
+  private moveSymbolsToTarget(): void {
+    this.selectedSymbols.forEach((symbol) => {
+      symbol.animateToTarget(this.game.targetSymbol);
+    });
+
+    this.clearSelection();
+  }
+
+  private clearSelection(): void {
+    this.selectedSymbols.forEach((symbol) => symbol.setSelected(false));
+    this.selectedSymbols = [];
   }
 }

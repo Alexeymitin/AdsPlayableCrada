@@ -1,10 +1,14 @@
 import { Point, Sprite, Ticker } from 'pixi.js';
 import { BaseContainer } from '../BaseContainer';
+import { getAngle } from '../helpers/getAngle';
+import { getDistance } from '../helpers/getDistance';
+import { TargetSymbol } from './TargetSymbol';
 
 export class Symbol extends BaseContainer {
   private symbol: Sprite;
   private background: Sprite;
   private symbolName: string;
+  private isSelected: boolean = false;
 
   constructor(symbolName: string, atlasName: string) {
     super();
@@ -26,6 +30,12 @@ export class Symbol extends BaseContainer {
 
   getCurrentSymbolName(): string {
     return this.symbolName;
+  }
+
+  setSelected(selected: boolean): void {
+    this.isSelected = selected;
+    this.alpha = selected ? 0.7 : 1;
+    this.background.tint = selected ? 0xffff00 : 0xffffff;
   }
 
   private enableInteraction(): void {
@@ -71,41 +81,42 @@ export class Symbol extends BaseContainer {
     ticker.start();
   }
 
-  public animateSymbolToPoint(targetPoint: Point): void {
-    // Преобразуем глобальную целевую точку в локальную систему координат символа
-    const localTargetPoint = this.parent.toLocal(targetPoint);
+  public animateToTarget(targetSymbol: TargetSymbol): void {
+    const copiedSymbol = new Sprite(this.symbol.texture);
+    copiedSymbol.anchor.set(0.5);
+    copiedSymbol.position.set(this.symbol.x, this.symbol.y);
+    copiedSymbol.zIndex = 1000;
+    this.addChild(copiedSymbol);
 
-    const copy = new Sprite(this.symbol.texture);
-    copy.anchor.set(0.5);
-    copy.position.set(this.symbol.x, this.symbol.y);
-    this.addChild(copy);
-
-    const controlPoint = new Point((this.symbol.x + localTargetPoint.x) / 2, this.symbol.y - 100);
-
-    const duration = 500;
-    const ticker = new Ticker();
     let elapsed = 0;
+    const duration = 1000;
+    const ticker = new Ticker();
+
+    const start = new Point(copiedSymbol.x, copiedSymbol.y);
 
     ticker.add(() => {
       elapsed += ticker.deltaMS;
       const t = Math.min(elapsed / duration, 1);
 
-      // Вычисляем позицию на кривой (квадратичная Безье)
-      const x =
-        (1 - t) * (1 - t) * this.symbol.x +
-        2 * (1 - t) * t * controlPoint.x +
-        t * t * localTargetPoint.x;
-      const y =
-        (1 - t) * (1 - t) * this.symbol.y +
-        2 * (1 - t) * t * controlPoint.y +
-        t * t * localTargetPoint.y;
+      const globalTargetPos = targetSymbol.getTarget().getGlobalPosition();
+      const end = this.toLocal(globalTargetPos, targetSymbol.parent);
+      const angle = getAngle(end, start);
+      const distance = getDistance(start.x, start.y, end.x, end.y);
+      const control = new Point(
+        start.x + Math.cos(angle) * (distance / 2),
+        start.y + Math.sin(angle) * (distance / 2) - 100
+      );
 
-      copy.position.set(x, y);
+      // Пересчёт позиции на кривой Безье
+      const x = (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * control.x + t * t * end.x;
+      const y = (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * control.y + t * t * end.y;
 
-      if (t === 1) {
+      copiedSymbol.position.set(x, y);
+
+      if (t >= 1) {
         ticker.stop();
         ticker.destroy();
-        this.removeChild(copy);
+        this.removeChild(copiedSymbol);
       }
     });
 
