@@ -2,7 +2,7 @@ import { Assets, Texture } from 'pixi.js';
 import { atlasAssets, imageAssets } from './assets';
 
 export class Loader {
-  private textures: Record<string, Texture> = {};
+  private _textures: Record<string, Texture> = {};
 
   public register(): void {
     imageAssets.forEach(({ name, url }) => {
@@ -22,7 +22,7 @@ export class Loader {
       imageNames.forEach((name) => {
         const tex = Assets.get(name) as Texture;
         if (!tex) throw new Error(`Texture not loaded: ${name}`);
-        this.textures[name] = tex;
+        this._textures[name] = tex;
       });
 
       const loadedAtlases = await Promise.all(atlasNames.map((name) => Assets.load(name)));
@@ -34,7 +34,7 @@ export class Loader {
         }
 
         Object.entries(pack.textures).forEach(([frameName, texture]) => {
-          this.textures[frameName] = texture as Texture;
+          this._textures[frameName] = texture as Texture;
         });
       });
     } catch (error) {
@@ -47,7 +47,7 @@ export class Loader {
   public getAsset(atlasName: string, textureName: string): Texture;
   public getAsset(assetName: string, textureName?: string): Texture {
     const key = textureName ?? assetName;
-    const texture = this.textures[key];
+    const texture = this._textures[key];
     if (!texture) {
       throw new Error(`Texture not found: ${key}`);
     }

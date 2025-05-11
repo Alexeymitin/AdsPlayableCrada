@@ -1,41 +1,41 @@
 import { Point, Sprite, Ticker } from 'pixi.js';
-import { BaseContainer } from '../BaseContainer';
-import { getAngle } from '../helpers/getAngle';
-import { getDistance } from '../helpers/getDistance';
+import { getAngle } from '../../helpers/getAngle';
+import { getDistance } from '../../helpers/getDistance';
+import { BaseContainer } from '../../shared/BaseContainer';
 import { TargetSymbol } from './TargetSymbol';
 
 export class Symbol extends BaseContainer {
-  private symbol: Sprite;
-  private background: Sprite;
-  private symbolName: string;
-  private isSelected: boolean = false;
+  private _symbol: Sprite;
+  private _background: Sprite;
+  private _symbolName: string;
+  private _isSelected: boolean = false;
 
   constructor(symbolName: string, atlasName: string) {
     super();
 
-    this.symbolName = symbolName;
+    this._symbolName = symbolName;
 
-    this.background = new Sprite(this.game.loader.getAsset(atlasName, 'symbolBackground'));
-    this.background.anchor.set(0.5);
+    this._background = new Sprite(this.game.loader.getAsset(atlasName, 'symbolBackground'));
+    this._background.anchor.set(0.5);
 
-    this.symbol = new Sprite(this.game.loader.getAsset(atlasName, symbolName));
-    this.symbol.anchor.set(0.5);
-    this.symbol.position.set(0, -10);
+    this._symbol = new Sprite(this.game.loader.getAsset(atlasName, symbolName));
+    this._symbol.anchor.set(0.5);
+    this._symbol.position.set(0, -10);
 
-    this.addChild(this.background);
-    this.addChild(this.symbol);
+    this.addChild(this._background);
+    this.addChild(this._symbol);
 
     this.enableInteraction();
   }
 
   getCurrentSymbolName(): string {
-    return this.symbolName;
+    return this._symbolName;
   }
 
   setSelected(selected: boolean): void {
-    this.isSelected = selected;
+    this._isSelected = selected;
     this.alpha = selected ? 0.7 : 1;
-    this.background.tint = selected ? 0xffff00 : 0xffffff;
+    this._background.tint = selected ? 0xffff00 : 0xffffff;
   }
 
   private enableInteraction(): void {
@@ -82,9 +82,9 @@ export class Symbol extends BaseContainer {
   }
 
   public animateToTarget(targetSymbol: TargetSymbol): void {
-    const copiedSymbol = new Sprite(this.symbol.texture);
+    const copiedSymbol = new Sprite(this._symbol.texture);
     copiedSymbol.anchor.set(0.5);
-    copiedSymbol.position.set(this.symbol.x, this.symbol.y);
+    copiedSymbol.position.set(this._symbol.x, this._symbol.y);
     copiedSymbol.zIndex = 1000;
     this.addChild(copiedSymbol);
 
@@ -99,7 +99,7 @@ export class Symbol extends BaseContainer {
       const t = Math.min(elapsed / duration, 1);
 
       const globalTargetPos = targetSymbol.getTarget().getGlobalPosition();
-      const end = this.toLocal(globalTargetPos, targetSymbol.parent);
+      const end = this.toLocal(globalTargetPos, this.game.app.stage);
       const angle = getAngle(end, start);
       const distance = getDistance(start.x, start.y, end.x, end.y);
       const control = new Point(

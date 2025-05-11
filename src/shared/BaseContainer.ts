@@ -1,5 +1,5 @@
 import { Container } from 'pixi.js';
-import { Game } from './game';
+import { Game } from '../game';
 
 export abstract class BaseContainer extends Container {
   /** Текущий экземпляр игры */
