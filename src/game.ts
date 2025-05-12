@@ -3,6 +3,8 @@ import { Background } from './Background/Background';
 import { Loader } from './Loader';
 
 import { PlayingField } from './PlayingField';
+import { TargetSymbol } from './PlayingField/components/TargetSymbol';
+import { Popup } from './Popup/Popup';
 import { Device } from './shared/Device';
 import { Viewport } from './shared/Viewport';
 
@@ -19,6 +21,8 @@ export class Game {
   device: Device;
   rootNode: Container;
   viewport: Viewport;
+  targetSymbol: TargetSymbol;
+  popup: Popup;
   protected landscapeMask: Graphics;
 
   constructor() {
@@ -57,10 +61,19 @@ export class Game {
     this.playingField = new PlayingField();
     this.playingField.position.set(260, 102);
 
+    this.popup = new Popup('Game Over');
+
+    this.targetSymbol = this.playingField.getTargetSymbol();
+
     this.rootNode.addChild(this.background);
     this.rootNode.addChild(this.playingField);
+    this.rootNode.addChild(this.popup);
 
     this.playingField.start();
+
+    this.app.ticker.add(() => {
+      this.background.update();
+    });
 
     this.resize();
   }
@@ -99,6 +112,7 @@ export class Game {
 
     this.background.resize(this.viewport.width, this.viewport.height);
     this.playingField.resize();
+    this.popup.resize();
     this.app.renderer.render(this.rootNode);
   }
 }

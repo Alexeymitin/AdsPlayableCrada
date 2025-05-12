@@ -1,9 +1,10 @@
-import { Sprite } from 'pixi.js';
+import { Graphics, Sprite } from 'pixi.js';
 import { BaseContainer } from '../shared/BaseContainer';
 
 export class Background extends BaseContainer {
   backgroundLight: Sprite;
   backgroundDark: Sprite;
+  private _mask: Graphics;
 
   constructor() {
     super();
@@ -11,20 +12,49 @@ export class Background extends BaseContainer {
     this.backgroundLight = new Sprite(this.game.loader.getAsset('backgroundLight'));
     this.backgroundLight.anchor.set(0, 0.5);
 
+    this.backgroundDark = new Sprite(this.game.loader.getAsset('backgroundDark'));
+    this.backgroundDark.anchor.set(0, 0.5);
+    this.addChild(this.backgroundDark);
     this.addChild(this.backgroundLight);
 
-    // this.backgroundDark = new Sprite(this.game.loader.getAsset('backgroundDark'));
-    // this.backgroundDark.anchor.set(0.5);
+    this._mask = new Graphics();
+    this.addChild(this._mask);
+    this.backgroundLight.mask = this._mask;
+  }
 
-    // this.addChild(this.backgroundDark);
+  update() {
+    const targetX = this.game.targetSymbol.x;
+
+    this._mask.clear();
+    this._mask.beginFill(0xffffff);
+    this._mask.drawRect(
+      targetX + 260,
+      0,
+      this.game.viewport.width - targetX,
+      this.game.viewport.height
+    );
+    this._mask.endFill();
   }
 
   resize(width: number, height: number) {
-    const targetWidth = (2 / 3) * width;
-    const scaleLight = targetWidth / this.backgroundLight.texture.width;
+    if (this.game.device.landscape || this.game.device.desktop) {
+      const scale = height / this.backgroundLight.texture.height;
 
-    this.backgroundLight.scale.set(scaleLight);
-    this.backgroundLight.height = height;
-    this.backgroundLight.position.set(0, height / 2);
+      this.backgroundLight.anchor.set(0, 0.5);
+      this.backgroundLight.scale.set(scale);
+      this.backgroundLight.position.set(0, height / 2);
+
+      this.backgroundDark.anchor.set(0, 0.5);
+      this.backgroundDark.scale.set(scale);
+      this.backgroundDark.position.set(0, height / 2);
+    } else {
+      this.backgroundLight.anchor.set(0);
+      this.backgroundLight.scale.set(1.3);
+      this.backgroundLight.position.set(0, 0);
+
+      this.backgroundDark.anchor.set(0);
+      this.backgroundDark.scale.set(1.3);
+      this.backgroundDark.position.set(0, 0);
+    }
   }
 }

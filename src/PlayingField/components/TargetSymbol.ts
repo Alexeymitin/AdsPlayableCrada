@@ -25,6 +25,10 @@ export class TargetSymbol extends BaseContainer {
 
     this.addChild(this._background);
     this.addChild(this._symbol);
+
+    this.on('game:over', () => {
+      this.game.popup.show();
+    });
   }
 
   get targetSymbolName(): string {
@@ -44,6 +48,8 @@ export class TargetSymbol extends BaseContainer {
 
     this._symbolName = symbolName;
     this._symbol.texture = this.game.loader.getAsset('symbols_atlas', symbolName);
+
+    return this._symbolName;
   }
 
   start() {
@@ -51,7 +57,7 @@ export class TargetSymbol extends BaseContainer {
     ticker.add(() => {
       this.x += this._speed;
       if (this.x >= this._boundaryX) {
-        console.log('Game Over');
+        this.emit('game:over');
         ticker.stop();
         ticker.destroy();
       }
@@ -59,9 +65,24 @@ export class TargetSymbol extends BaseContainer {
     ticker.start();
   }
 
+  increaseSpeed(amount: number = 0.5): void {
+    this._speed += amount;
+  }
+
+  decreaseSpeed(amount: number = 0.5): void {
+    this._speed -= amount;
+    if (this._speed < 0) {
+      this._speed = 0.2;
+    }
+  }
+
   resize() {
-    // if (this.game.device.landscape) {
-    //   this.position.set(-200, 415);
-    // }
+    if (this.game.device.landscape || this.game.device.desktop) {
+      this.pivot.set(0);
+      this.position.set(this.x, 415);
+    } else {
+      this.pivot.set(0, 400);
+      this.position.set(this.x, 733 + this.game.viewport.paddingY * 2);
+    }
   }
 }

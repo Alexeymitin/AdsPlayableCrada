@@ -10,13 +10,17 @@ export class PlayingField extends BaseContainer {
     super();
 
     this._targetSymbol = new TargetSymbol();
-    this._targetSymbol.setBoundaryX(400);
+    this._targetSymbol.setBoundaryX(600);
 
-    this._field = new Field(6, 7, this._targetSymbol);
+    this._field = new Field(6, 6, this._targetSymbol);
     this._field.position.set(790, 200);
 
     this.addChild(this._field);
     this.addChild(this._targetSymbol);
+  }
+
+  getTargetSymbol(): TargetSymbol {
+    return this._targetSymbol;
   }
 
   start() {
@@ -25,7 +29,8 @@ export class PlayingField extends BaseContainer {
     this._targetSymbol.start();
   }
 
-  resize(width: number, height: number) {
+  resize() {
     this._field.resize();
+    this._targetSymbol.resize();
   }
 }

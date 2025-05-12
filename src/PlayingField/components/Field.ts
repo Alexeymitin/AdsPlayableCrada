@@ -1,9 +1,11 @@
+import { Sprite } from 'pixi.js';
 import { getRandomSymbolName } from '../../helpers/getRandomSymbolName';
 import { BaseContainer } from '../../shared/BaseContainer';
 import { Symbol } from './Symbol';
 import { TargetSymbol } from './TargetSymbol';
 
 export class Field extends BaseContainer {
+  private _background: Sprite;
   private _rows: number;
   private _columns: number;
   private _symbols: Symbol[][];
@@ -19,6 +21,11 @@ export class Field extends BaseContainer {
     this._symbols = [];
 
     this._targetSymbol = targetSymbol;
+
+    this._background = new Sprite(this.game.loader.getAsset('playingFieldBackground'));
+    this._background.anchor.set(0.5);
+
+    this.addChild(this._background);
 
     this.createField();
 
@@ -67,18 +74,24 @@ export class Field extends BaseContainer {
         this._selectedSymbols.push(symbol);
         symbol.setSelected(true);
       } else {
+        this._targetSymbol.increaseSpeed();
         this.clearSelection();
       }
     }
 
     if (this._selectedSymbols.length === 3) {
       this.moveSymbolsToTarget();
+      this._targetSymbol.decreaseSpeed();
+      this._targetSymbolName = this._targetSymbol.changeSymbol();
     }
   }
 
   private moveSymbolsToTarget(): void {
     this._selectedSymbols.forEach((symbol) => {
       symbol.animateToTarget(this._targetSymbol);
+      const randomSymbolName = getRandomSymbolName();
+      symbol.setCurrentSymbolName(randomSymbolName);
+      symbol.setTexture(randomSymbolName);
     });
 
     this.clearSelection();
@@ -90,8 +103,18 @@ export class Field extends BaseContainer {
   }
 
   resize() {
-    if (this.game.device.landscape) {
-      this.position.set(1645, 415);
+    if (this.game.device.landscape || this.game.device.desktop) {
+      this._background.scale.set(1);
+      this._background.position.set(250, 238);
+
+      this.pivot.set(650, 240);
+      this.position.set(1833, 415);
+    } else {
+      this._background.scale.set(1.1, 1);
+      this._background.position.set(250, 260);
+
+      this.pivot.set(650, 550);
+      this.position.set(980, 1807 + this.game.viewport.paddingY * 2);
     }
   }
 }

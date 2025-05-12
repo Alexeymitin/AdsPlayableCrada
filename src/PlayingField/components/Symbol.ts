@@ -32,9 +32,17 @@ export class Symbol extends BaseContainer {
     return this._symbolName;
   }
 
+  setTexture(texture: string): void {
+    this._symbol.texture = this.game.loader.getAsset('symbols_atlas', texture);
+  }
+
+  setCurrentSymbolName(name: string): void {
+    this._symbolName = name;
+  }
+
   setSelected(selected: boolean): void {
     this._isSelected = selected;
-    this.alpha = selected ? 0.7 : 1;
+
     this._background.tint = selected ? 0xffff00 : 0xffffff;
   }
 
