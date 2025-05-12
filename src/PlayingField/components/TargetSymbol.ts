@@ -6,7 +6,7 @@ export class TargetSymbol extends BaseContainer {
   private _background: Sprite;
   private _symbol: Sprite;
   private _symbolName: string;
-  private _speed: number = 1; // Скорость движения
+  private _speed: number = 2; // Скорость движения
   private _boundaryX: number = 800; // Граница, при достижении которой игра заканчивается
 
   constructor() {
@@ -56,6 +56,7 @@ export class TargetSymbol extends BaseContainer {
     const ticker = new Ticker();
     ticker.add(() => {
       this.x += this._speed;
+      this.game.background.update();
       if (this.x >= this._boundaryX) {
         this.emit('game:over');
         ticker.stop();
@@ -69,10 +70,10 @@ export class TargetSymbol extends BaseContainer {
     this._speed += amount;
   }
 
-  decreaseSpeed(amount: number = 0.5): void {
+  decreaseSpeed(amount: number = 0.3): void {
     this._speed -= amount;
-    if (this._speed < 0) {
-      this._speed = 0.2;
+    if (this._speed < 0.4) {
+      this._speed = 0.4;
     }
   }
 

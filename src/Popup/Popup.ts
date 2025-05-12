@@ -7,7 +7,7 @@ export class Popup extends BaseContainer {
   private _button: Button;
   private _logo: Sprite;
 
-  constructor(message: string) {
+  constructor() {
     super();
 
     this._background = new Graphics();
@@ -37,21 +37,21 @@ export class Popup extends BaseContainer {
 
   resize() {
     if (this.game.device.landscape || this.game.device.desktop) {
-      this._background.beginFill(0x000000, 0.4);
-      this._background.drawRect(0, 0, 1920, 1080);
-      this._background.endFill();
+      this._background.clear().rect(0, 0, 1920, 1080).fill({ color: 0x000000, alpha: 0.4 });
 
       this._button.position.set(960, 650);
       this._logo.position.set(960, 390);
     } else {
-      this._background.beginFill(0x000000, 0.4);
-      this._background.drawRect(
-        0,
-        0,
-        this.game.viewport.width + this.game.viewport.paddingX * 2,
-        this.game.viewport.height + this.game.viewport.paddingY * 2
-      );
-      this._background.endFill();
+      this._background
+        .clear()
+        .rect(
+          0,
+          0,
+          this.game.viewport.width + this.game.viewport.paddingX * 2,
+          this.game.viewport.height + this.game.viewport.paddingY * 2
+        )
+        .fill({ color: 0x000000, alpha: 0.4 });
+
       this._button.position.set(540, 1200);
       this._logo.position.set(540, 900);
     }

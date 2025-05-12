@@ -1,8 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = (env, argv) => {
   const isProd = argv.mode === 'production';
@@ -51,6 +52,14 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: 'public/index.html'
       }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, 'src/assets'), // Исходная папка с ассетами
+            to: path.resolve(__dirname, 'dist/assets') // Папка назначения
+          }
+        ]
+      }),
       ...(isProd
         ? [
             new ImageMinimizerPlugin({
@@ -66,15 +75,16 @@ module.exports = (env, argv) => {
               }
             })
           ]
-        : [])
-      // ...(isProd ? [new BundleAnalyzerPlugin()] : [])
+        : []),
+      ...(isProd ? [new BundleAnalyzerPlugin()] : [])
     ],
     devServer: {
       static: {
         directory: path.join(__dirname, 'src')
       },
       compress: true,
-      port: 9000
+      port: 9000,
+      hot: false
     },
     devtool: isProd ? false : 'source-map',
     optimization: {
@@ -82,9 +92,7 @@ module.exports = (env, argv) => {
       usedExports: true,
       minimize: isProd
     },
-    cache: {
-      type: 'filesystem'
-    },
+    cache: false,
     performance: { hints: false },
     mode: isProd ? 'production' : 'development'
   };

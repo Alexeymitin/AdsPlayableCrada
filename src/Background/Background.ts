@@ -25,15 +25,10 @@ export class Background extends BaseContainer {
   update() {
     const targetX = this.game.targetSymbol.x;
 
-    this._mask.clear();
-    this._mask.beginFill(0xffffff);
-    this._mask.drawRect(
-      targetX + 260,
-      0,
-      this.game.viewport.width - targetX,
-      this.game.viewport.height
-    );
-    this._mask.endFill();
+    this._mask
+      .clear()
+      .rect(targetX + 260, 0, this.game.viewport.width - targetX, this.game.viewport.height)
+      .fill({ color: 0xffffff, alpha: 1 });
   }
 
   resize(width: number, height: number) {

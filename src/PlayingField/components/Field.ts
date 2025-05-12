@@ -70,12 +70,16 @@ export class Field extends BaseContainer {
       this._selectedSymbols = this._selectedSymbols.filter((s) => s !== symbol);
       symbol.setSelected(false);
     } else {
+      const randomSymbolName = getRandomSymbolName();
+
       if (symbol.getCurrentSymbolName() === this._targetSymbolName) {
         this._selectedSymbols.push(symbol);
         symbol.setSelected(true);
       } else {
         this._targetSymbol.increaseSpeed();
+
         this.clearSelection();
+        symbol.setTexture(randomSymbolName);
       }
     }
 

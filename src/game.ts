@@ -61,7 +61,7 @@ export class Game {
     this.playingField = new PlayingField();
     this.playingField.position.set(260, 102);
 
-    this.popup = new Popup('Game Over');
+    this.popup = new Popup();
 
     this.targetSymbol = this.playingField.getTargetSymbol();
 
@@ -70,10 +70,6 @@ export class Game {
     this.rootNode.addChild(this.popup);
 
     this.playingField.start();
-
-    this.app.ticker.add(() => {
-      this.background.update();
-    });
 
     this.resize();
   }
@@ -108,21 +104,9 @@ export class Game {
       this.rootNode.mask = null;
     }
 
-    console.log('resize', this.viewport.width, this.viewport.height);
-
     this.background.resize(this.viewport.width, this.viewport.height);
     this.playingField.resize();
     this.popup.resize();
     this.app.renderer.render(this.rootNode);
   }
 }
-
-const style = document.createElement('style');
-style.textContent = `
-  body, html, canvas {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-`;
-document.head.appendChild(style);
